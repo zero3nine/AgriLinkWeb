@@ -1,12 +1,16 @@
-import React, { useState } from "react";
+import { useState } from "react"; //not using currently; refreshing page for login msg - doesnt seem worth it to change considering user doesnt login all that frequently anyway
 import { useNavigate } from "react-router-dom";
+import InputField from "../components/InputField";
+import Button from "../components/Button";
+import "../styles/auth.css";
 
 function LoginPage() {
   const [formData, setFormData] = useState({ email: "", password: "" });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleChange = (e) => setFormData({ ...formData, [e.target.name]: e.target.value });
+  const handleChange = (e) =>
+    setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -20,21 +24,46 @@ function LoginPage() {
     if (data.token) {
       localStorage.setItem("token", data.token);
       localStorage.setItem("username", data.username);
-      window.location.href = "/"; // redirect to home
+      localStorage.setItem("role", data.role);
+      if (data.role === "buyer") {
+        window.location.href = "/";
+      } else if (data.role === "seller") {
+        window.location.href = "/seller-home";
+      } else if (data.role === "delivery_provider") {
+        window.location.href = "/delivery-home";
+      } else {
+        window.location.href = "/";
+      }
+      
+      
     } else {
       setMessage(data.message || "Login failed");
     }
   };
 
   return (
-    <div style={{ textAlign: "center", marginTop: "50px" }}>
-      <h2>Login</h2>
-      <form onSubmit={handleSubmit}>
-        <input type="email" name="email" placeholder="Email" value={formData.email} onChange={handleChange} required /><br /><br />
-        <input type="password" name="password" placeholder="Password" value={formData.password} onChange={handleChange} required /><br /><br />
-        <button type="submit">Login</button>
-      </form>
-      <p>{message}</p>
+    <div className="login-container">
+      <div className="login-box">
+        <h1 className="login-title">Welcome!</h1>
+        <form onSubmit={handleSubmit}>
+          <InputField
+            type="email"
+            name="email"
+            placeholder="Email address"
+            value={formData.email}
+            onChange={handleChange}
+          />
+          <InputField
+            type="password"
+            name="password"
+            placeholder="Password"
+            value={formData.password}
+            onChange={handleChange}
+          />
+          <Button type="submit">Log In</Button>
+        </form>
+        {message && <p className="error-message">{message}</p>}
+      </div>
     </div>
   );
 }
