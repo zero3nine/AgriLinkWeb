@@ -1,5 +1,6 @@
-import React from "react";
+
 import { Link } from "react-router-dom";
+import "../styles/navbar.css";
 
 function Navbar() {
   const username = localStorage.getItem("username");
@@ -7,24 +8,31 @@ function Navbar() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
-    window.location.reload(); // <-- simple page refresh
+    localStorage.removeItem("role");
+    window.location.reload(); 
   };
 
   return (
-    <nav>
-      {username ? (
-        <>
-          <span>Hello, {username}!</span>
-          <button onClick={handleLogout}>Logout</button>
-        </>
-      ) : (
-        <>
-          <Link to="/register"><button>Register</button></Link>
-          <Link to="/login"><button>Login</button></Link>
-        </>
-      )}
+    <nav className="navbar">
+      <div className="navbar-left">
+        <Link to="/" className="navbar-logo">AgriLink</Link>
+      </div>
+      <div className="navbar-right">
+        {username ? (
+          <>
+            <span className="navbar-user">Hello, {username}!</span>
+            <button className="btn" onClick={handleLogout}>Logout</button>
+          </>
+        ) : (
+          <>
+            <Link to="/register"><button className="btn">Register</button></Link>
+            <Link to="/login"><button className="btn">Login</button></Link>
+          </>
+        )}
+      </div>
     </nav>
   );
 }
+
 
 export default Navbar;
