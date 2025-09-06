@@ -1,10 +1,9 @@
-require('dotenv').config({ path: './backend/.env' });
+require('dotenv').config(); // <-- just this
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-
-//Imports
+// Imports
 const authRoutes = require("./routes/auth");
 
 const app = express();
