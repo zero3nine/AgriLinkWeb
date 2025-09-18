@@ -1,0 +1,110 @@
+/* Page layout */
+.add-product-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f9f9f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Card container (title + form) */
+.add-product-card {
+  background: #fff;
+  padding: 2.5rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+  width: 100%;
+  max-width: 450px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* Title inside card */
+.add-product-card h1 {
+  text-align: center;
+  font-size: 1.9rem;
+  margin-bottom: 1.8rem;
+  font-weight: 600;
+  color: #4caf50;
+}
+
+/* Form */
+.add-product-form {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Labels */
+.add-product-form label {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+/* Input fields */
+.add-product-form input,
+.add-product-form select {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  margin-bottom: 1.4rem;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: border 0.2s, box-shadow 0.2s;
+  background: #fff;
+}
+
+.add-product-form input:focus,
+.add-product-form select:focus {
+  outline: none;
+  border-color: #4caf50;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2);
+}
+
+/* Buttons */
+.form-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.submit-btn {
+  flex: 1;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: #4caf50;
+  color: #fff;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.submit-btn:hover {
+  background: #43a047;
+  transform: translateY(-2px);
+}
+
+.cancel-btn {
+  flex: 1;
+  padding: 0.9rem 1rem;
+  border: none;
+  border-radius: 12px;
+  background: #f1f1f1;
+  color: #333;
+  font-size: 1rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.cancel-btn:hover {
+  background: #ddd;
+  transform: translateY(-2px);
+}
