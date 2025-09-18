@@ -9,7 +9,7 @@ function RegisterPage() {
     username: "",
     email: "",
     password: "",
-    role: "user", // default role
+    role: "buyer", // default role
   });
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
