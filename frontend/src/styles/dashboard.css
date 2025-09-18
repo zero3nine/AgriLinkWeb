@@ -242,3 +242,84 @@ button.delete-btn:hover {
 .cart-section table td {
   text-align: center;
 }
+
+
+
+
+/* delivery dash */
+
+/* Delivery Dashboard Sections */
+.delivery-dashboard .section {
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border: 1px solid #e0e0e0;
+  margin-bottom: 20px;
+}
+
+.delivery-dashboard .section h2 {
+  margin-bottom: 15px;
+  color: #4caf50;
+  text-align: center;
+}
+
+/* Orders Table */
+.delivery-dashboard table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  color: #333;
+}
+
+.delivery-dashboard table th,
+.delivery-dashboard table td {
+  padding: 12px;
+  border-bottom: 1px solid #e0e0e0;
+  text-align: center;
+}
+
+.delivery-dashboard table th {
+  background: #f8f9fa;
+  color: #4caf50;
+}
+
+/* Action Buttons */
+.delivery-dashboard button {
+  padding: 6px 12px;
+  border: none;
+  background: #4caf50;
+  color: white;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  margin: 2px 0;
+}
+
+.delivery-dashboard button:hover {
+  background: #43a047;
+}
+
+.delivery-dashboard button.done-btn {
+  background: #2196f3;
+}
+
+.delivery-dashboard button.done-btn:hover {
+  background: #1976d2;
+}
+
+/* Status Badge */
+.delivery-dashboard .status-badge {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: inline-block;
+}
+
+.delivery-dashboard .status-pending { background: #ff9800; color: white; }
+.delivery-dashboard .status-accepted { background: #4caf50; color: white; }
+.delivery-dashboard .status-done { background: #2196f3; color: white; }
+

@@ -20,11 +20,37 @@ router.post("/", async (req, res) => {
         $inc: { stock: -item.qty }, // subtract purchased quantity
       });
     }
-    
+
     res.status(201).json(newOrder);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
+// PATCH order status
+router.patch("/:id", async (req, res) => {
+  const { status } = req.body;
+  try {
+    const order = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+    res.json(order);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+// GET all orders
+router.get("/", async (req, res) => {
+  try {
+    const orders = await Order.find(); // fetch all orders
+    res.json(orders);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
 
 module.exports = router;
