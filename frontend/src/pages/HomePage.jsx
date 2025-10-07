@@ -27,10 +27,30 @@ function HomePage() {
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // Open quantity modal
-  const handleAddToCartPopup = (product) => {
+  // Open fullscreen view when clicking product card
+  const openProductDetails = (product) => {
     setSelectedProduct(product);
     setSelectedQty(1);
+  };
+
+  const closeModal = () => {
+    setSelectedProduct(null);
+  };
+
+  // Add product to cart from fullscreen
+  const addToCart = () => {
+    setCart((prev) => {
+      const existing = prev.find((p) => p.id === selectedProduct._id);
+      if (existing) {
+        return prev.map((p) =>
+          p.id === selectedProduct._id
+            ? { ...p, qty: selectedQty }
+            : p
+        );
+      }
+      return [...prev, { id: selectedProduct._id, ...selectedProduct, qty: selectedQty }];
+    });
+    setSelectedProduct(null);
   };
 
   // Confirm adding to cart
@@ -40,7 +60,7 @@ function HomePage() {
       if (existing) {
         return prev.map((p) =>
           p.id === selectedProduct._id
-            ? { ...p, qty: p.qty + selectedQty }
+            ? { ...p, qty: selectedQty }
             : p
         );
       }
@@ -65,7 +85,7 @@ function HomePage() {
       await axios.post("http://localhost:5000/api/orders", {
         items: cart,
         totalAmount,
-        buyerName: "John Doe", // Replace with actual user if auth implemented
+        buyerName // Replace with actual user if auth implemented
       });
       alert("Order confirmed!");
       setCart([]);
@@ -104,7 +124,23 @@ function HomePage() {
         ) : (
           filteredProducts.map((p) => (
             <div key={p._id} className="product-card">
-              <h3>{p.name}</h3>
+               <div className="product-image-container"  onClick={() => openProductDetails(p)} style={{ cursor: "pointer" }}>
+                {p.images && p.images.length > 0 ? (
+                  <img
+                    src={`http://localhost:5000/${p.images[0]}`}
+                    alt={p.name}
+                    className="product-image"
+                  />
+                ) : (
+                  <img
+                    src="https://via.placeholder.com/150?text=No+Image"
+                    alt="No preview available"
+                    className="product-image"
+                  />
+                )}
+              </div>
+              
+              <h3 onClick={() => openProductDetails(p)} style={{ cursor: "pointer" }}>{p.name}</h3>
               <p>Price: Rs. {p.price.toLocaleString()}</p>
               <p>
                 Stock: {p.stock} kg{" "}
@@ -113,7 +149,7 @@ function HomePage() {
                 )}
               </p>
               <button
-                onClick={() => handleAddToCartPopup(p)}
+                onClick={() => openProductDetails(p)}
                 disabled={p.stock === 0}
                 style={{ opacity: p.stock === 0 ? 0.6 : 1 }}
               >
@@ -124,13 +160,31 @@ function HomePage() {
         )}
       </div>
 
-      {/* Quantity Selection Modal */}
+      {/* 🆕 Fullscreen Product View */}
       {selectedProduct && (
-        <div className="modal-overlay">
-          <div className="modal">
-            <h3>{selectedProduct.name}</h3>
-            <p>Price: Rs. {selectedProduct.price.toLocaleString()}</p>
-            <label>
+        <div className="fullscreen-overlay">
+          <div className="fullscreen-product">
+            <div className="left">
+            {selectedProduct.images?.length > 0 ? (
+              <img
+              src={`http://localhost:5000/${selectedProduct.images[0]}`}
+              alt={selectedProduct.name}
+            />
+            ) : (
+            <img
+            src="https://via.placeholder.com/300?text=No+Image"
+            alt="No preview"
+            />
+            )}
+          </div>
+
+        <div className="right">
+        <h2>{selectedProduct.name}</h2>
+        <p className="price">Rs. {selectedProduct.price.toLocaleString()}</p>
+        <p className="about">
+          {selectedProduct.about || "No description available."}
+              </p>
+              <label>
               Quantity: {selectedQty} kg
               <input
                 type="range"
@@ -149,6 +203,7 @@ function HomePage() {
             </div>
           </div>
         </div>
+      </div>
       )}
 
       {/* Cart Section */}

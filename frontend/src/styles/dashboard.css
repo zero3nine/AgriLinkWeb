@@ -243,8 +243,132 @@ button.delete-btn:hover {
   text-align: center;
 }
 
+/*Detailed Object Information*/
+.fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.fullscreen-product {
+  background: white;
+  width: 80%;
+  max-width: 900px;
+  display: flex;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+}
+
+.fullscreen-product .left {
+  flex: 1;
+  background: #f8f8f8;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.fullscreen-product .left img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.fullscreen-product .right {
+  flex: 1;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+}
+
+.fullscreen-product .right h2 {
+  margin-bottom: 10px;
+}
+
+.fullscreen-product .right .price {
+  font-size: 1.3rem;
+  font-weight: bold;
+  margin-bottom: 15px;
+}
+
+.fullscreen-product .right .about {
+  flex: 1;
+  color: #555;
+  margin-bottom: 20px;
+}
+
+/* Fullscreen modal action buttons */
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+/* Add to Cart button */
+.modal-actions button {
+  flex: 1;
+  padding: 10px 0;
+  border: none;
+  border-radius: 6px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  transform: scale(1);
+}
+
+.modal-actions button:hover {
+  transform: scale(1.05);
+}
+
+/* Green Add to Cart */
+.modal-actions button:first-child {
+  background: #4CAF50;
+  color: white;
+}
+.modal-actions button:first-child:hover {
+  background: #43a047;
+}
+
+/* Red Cancel Button */
+.modal-actions .cancel-btn {
+  background: #ff5252;
+  color: white;
+}
+.modal-actions .cancel-btn:hover {
+  background: #e53935;
+}
 
 
+/* Fix product image sizing in grid */
+.product-image-container {
+  width: 100%;
+  height: 200px; 
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  border-radius: 10px;
+  background: #f9f9f9;
+}
+
+.product-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; 
+  transition: transform 0.3s ease;
+}
+
+.product-card:hover .product-image {
+  transform: scale(1.05); 
+}
 
 /* delivery dash */
 

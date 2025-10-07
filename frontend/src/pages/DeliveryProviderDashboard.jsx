@@ -60,7 +60,7 @@ function DeliveryProviderDashboard() {
             <tbody>
               {pendingOrders.map((o) => (
                 <tr key={o._id}>
-                  <td>{o.buyerName}</td>
+                  <td>{o.buyer?.username || o.buyerName}</td>
                   <td>
                     {o.items.map((i) => (
                       <div key={i.id}>

@@ -7,9 +7,13 @@ function AddProduct() {
     name: "",
     price: "",
     stock: "",
+    about: "",
     stockStatus: "In Stock",
   });
 
+  //Store selected image files
+  const [images, setImages] = useState([]);
+  const [imagePreviews, setImagePreviews] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -19,23 +23,42 @@ function AddProduct() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+   // Handle file selection
+  const handleImageChange = (e) => {
+    const files = Array.from(e.target.files);
+    setImages(files);
+
+    // generate preview URLs for selected images
+    const previews = files.map((file) => URL.createObjectURL(file));
+    setImagePreviews(previews);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    if (!images || images.length === 0) {
+    setError("Please upload at least one image before submitting.");
+    setLoading(false);
+    return;
+    }
+
     try {
+      const form = new FormData();
+      form.append("name", formData.name);
+      form.append("price", parseFloat(formData.price));
+      form.append("stock", parseInt(formData.stock));
+      form.append("stockStatus", formData.stockStatus);
+      form.append("about", formData.about || "")
+
+      // append images
+      images.forEach((img) => form.append("images", img));
+
       // send product data to backend API
       const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-        }),
+        body: form,
       });
 
       if (!response.ok) {
@@ -58,6 +81,31 @@ function AddProduct() {
         <h1>➕ Add New Product</h1>
         {error && <p className="error-message">{error}</p>}
         <form onSubmit={handleSubmit} className="add-product-form">
+          {/* New section: Image Upload */}
+          <label>
+            Product Image:
+            <input
+              type="file"
+              multiple
+              accept="image/*"
+              onChange={handleImageChange}
+            />
+          </label>
+
+          {/* Image Previews */}
+          {imagePreviews.length > 0 && (
+            <div className="image-preview-container">
+              {imagePreviews.map((src, index) => (
+                <img
+                  key={index}
+                  src={src}
+                  alt={`Preview ${index + 1}`}
+                  className="image-preview"
+                />
+              ))}
+            </div>
+          )}
+          
           <label>
             Product Name:
             <input
@@ -77,6 +125,17 @@ function AddProduct() {
               value={formData.price}
               onChange={handleChange}
               required
+            />
+          </label>
+
+          <label>
+            Product Description:
+            <textarea
+              name="about"
+              value={formData.about || ""}
+              onChange={handleChange}
+              placeholder="Enter details about this product..."
+              rows="3"
             />
           </label>
 
