@@ -14,18 +14,34 @@ import "../styles/dashboard.css";
 
 function SellerDashboard() {
   const [products, setProducts] = useState([]);
-  const [orders, setOrders] = useState([
-    { id: 1, buyer: "John Doe", product: "Tomatoes", qty: 5, status: "Pending" },
-    { id: 2, buyer: "Jane Smith", product: "Cabbage", qty: 2, status: "Pending" },
-    { id: 3, buyer: "Michael Lee", product: "Carrots", qty: 10, status: "Ready" },
-  ]);
+  const [orders, setOrders] = useState([]);
 
   const navigate = useNavigate();
 
-  // 🔹 Fetch products from backend
+  // 🔹 Fetch products & orders from backend
   useEffect(() => {
     fetchProducts();
+    fetchOrders();
   }, []);
+
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/orders");
+      setOrders(res.data);
+    } catch (err) {
+      console.error("Error fetching orders:", err);
+    }
+  };
+
+  const flattenedOrders = orders.flatMap((order) =>
+    order.items.map((item) => ({
+      id: order._id,
+      buyer: order.buyerName,
+      product: item.name,
+      qty: item.qty,
+      status: order.status,
+    }))
+  );
 
   const fetchProducts = async () => {
     try {
@@ -68,6 +84,20 @@ function SellerDashboard() {
     }
   };
 
+  // 🔹 Delete product
+const deleteProduct = async (id) => {
+  if (!window.confirm("Are you sure you want to delete this product?")) return;
+
+  try {
+    await axios.delete(`http://localhost:5000/api/products/${id}`);
+    fetchProducts(); // refresh the list
+  } catch (err) {
+    console.error("Error deleting product:", err);
+    alert("Failed to delete product. Please try again.");
+  }
+};
+
+
   return (
     <div className="dashboard light">
       <h1 className="dashboard-title">🌾 Farmer Dashboard</h1>
@@ -78,7 +108,7 @@ function SellerDashboard() {
           📦 Total Products <span>{products.length}</span>
         </div>
         <div className="stat-card">
-          🛒 Orders Received <span>{orders.length}</span>
+          🛒 Orders Received <span>{flattenedOrders.length}</span>
         </div>
         <div className="stat-card">
           ✅ Completed Orders{" "}
@@ -103,6 +133,7 @@ function SellerDashboard() {
             <thead>
               <tr>
                 <th>Product</th>
+                <th>Image</th>
                 <th>Price (LKR)</th>
                 <th>Stock</th>
                 <th>Status</th>
@@ -113,6 +144,7 @@ function SellerDashboard() {
               {products.map((p) => (
                 <tr key={p._id}>
                   <td>{p.name}</td>
+                  <td><img src={p.imageUrl} alt={p.name} style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "8px" }}/></td>
                   <td>{p.price}</td>
                   <td>{p.stock}</td>
                   <td>
@@ -136,6 +168,8 @@ function SellerDashboard() {
                         if (e.target.value === "edit") {
                           navigate(`/edit-product/${p._id}`); // 🔹 To implement later
                         }
+                        if (e.target.value === "delete") { deleteProduct(p._id); }
+                        e.target.value = ""; // reset select
                       }}
                     >
                       <option value="">Select Action</option>
@@ -143,6 +177,7 @@ function SellerDashboard() {
                       <option value="out-of-stock">Mark Out of Stock</option>
                       <option value="update-stock">Update Stock Level</option>
                       <option value="edit">Edit Product</option>
+                      <option value="delete">Delete Product</option>
                     </select>
                   </td>
                 </tr>
@@ -164,15 +199,22 @@ function SellerDashboard() {
               </tr>
             </thead>
             <tbody>
-              {orders.map((o) => (
-                <tr key={o.id}>
-                  <td>{o.buyer}</td>
-                  <td>{o.product}</td>
-                  <td>{o.qty}</td>
-                  <td>{o.status}</td>
+              {flattenedOrders.length === 0 ? (
+                <tr>
+                  <td colSpan="4" style={{ textAlign: "center" }}>No orders found</td>
                 </tr>
-              ))}
+              ) : (
+                flattenedOrders.map((o, index) => (
+                  <tr key={`${o.orderId}-${index}`}>
+                    <td>{o.buyer}</td>
+                    <td>{o.product}</td>
+                    <td>{o.qty}</td>
+                    <td>{o.status}</td>
+                  </tr>
+                ))
+              )}
             </tbody>
+
           </table>
         </div>
       </div>

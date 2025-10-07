@@ -1,10 +1,13 @@
 const express = require("express");
-const Product = require("../models/Product");
-
 const router = express.Router();
+const Product = require("../models/Product");
+const multer = require("multer");
+const { cloudinary, storage } = require("../config/cloudinary");
+
+const upload = multer({ storage });
 
 // add new product
-router.post("/", async (req, res) => {
+router.post("/", upload.single("image"), async (req, res) => {
   try {
     const { name, price, stock, stockStatus } = req.body;
 
@@ -13,6 +16,7 @@ router.post("/", async (req, res) => {
       price,
       stock,
       stockStatus,
+      imageUrl: req.file ? req.file.path : null, // store image URL from Cloudinary
     });
 
     await product.save();
@@ -115,6 +119,18 @@ router.put("/:id", async (req, res) => {
     res.json(updatedProduct);
   } catch (err) {
     res.status(500).json({ message: "Server error", error: err.message });
+  }
+});
+
+// Delete product
+router.delete("/:id", async (req, res) => {
+  try {
+    const deletedProduct = await Product.findByIdAndDelete(req.params.id);
+    if (!deletedProduct) return res.status(404).json({ message: "Product not found" });
+    res.json({ message: "Product deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Failed to delete product" });
   }
 });
 

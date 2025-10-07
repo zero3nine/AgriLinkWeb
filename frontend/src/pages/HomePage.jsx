@@ -9,6 +9,9 @@ function HomePage() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedQty, setSelectedQty] = useState(1);
 
+  const username = localStorage.getItem("username");
+  const role = localStorage.getItem("role");
+
   // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
@@ -22,10 +25,6 @@ function HomePage() {
     fetchProducts();
   }, []);
 
-  // Filter products based on search
-  const filteredProducts = products.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   // Open quantity modal
   const handleAddToCartPopup = (product) => {
@@ -65,7 +64,7 @@ function HomePage() {
       await axios.post("http://localhost:5000/api/orders", {
         items: cart,
         totalAmount,
-        buyerName: "John Doe", // Replace with actual user if auth implemented
+        buyerName: username, // Replace with actual user if auth implemented
       });
       alert("Order confirmed!");
       setCart([]);
@@ -97,13 +96,15 @@ function HomePage() {
 
       {/* Product Grid */}
       <div className="product-grid">
-        {filteredProducts.length === 0 ? (
-          <p style={{ gridColumn: "1 / -1", textAlign: "center" }}>
-            No products found
-          </p>
-        ) : (
-          filteredProducts.map((p) => (
+        {products
+          .filter((p) => p.stock > 0 && p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+          .map((p) => (
             <div key={p._id} className="product-card">
+              <img
+                src={p.imageUrl}
+                alt={p.name}
+                style={{ width: "180px", height: "180px", objectFit: "cover", borderRadius: "8px" }}
+              />
               <h3>{p.name}</h3>
               <p>Price: Rs. {p.price.toLocaleString()}</p>
               <p>
@@ -120,9 +121,9 @@ function HomePage() {
                 Add to Cart
               </button>
             </div>
-          ))
-        )}
+          ))}
       </div>
+
 
       {/* Quantity Selection Modal */}
       {selectedProduct && (
@@ -191,9 +192,21 @@ function HomePage() {
                 </tr>
               </tbody>
             </table>
-            <button onClick={confirmOrder} style={{ marginTop: "15px" }}>
-              Confirm Order
-            </button>
+            {!username || role !== "buyer" ? (
+              <>
+                <p className="auth-warning">
+                  ⚠️ Please sign in as a buyer to confirm orders.
+                </p>
+                <button className="confirm-btn disabled" disabled>
+                  Confirm Order
+                </button>
+              </>
+            ) : (
+              <button className="confirm-btn" onClick={confirmOrder}>
+                Confirm Order
+              </button>
+            )}
+
           </>
         )}
       </div>

@@ -16,9 +16,15 @@ router.post("/", async (req, res) => {
 
     // Update stock levels for each product
     for (const item of items) {
-      await Product.findByIdAndUpdate(item.id, {
-        $inc: { stock: -item.qty }, // subtract purchased quantity
-      });
+      const product = await Product.findById(item.id);
+      if (product) {
+        const newStock = product.stock - item.qty;
+
+        product.stock = Math.max(newStock, 0);
+        product.stockStatus = newStock <= 0 ? "Out of Stock" : "In Stock";
+
+        await product.save();
+      }
     }
 
     res.status(201).json(newOrder);
