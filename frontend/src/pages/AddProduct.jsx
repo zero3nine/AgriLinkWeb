@@ -10,6 +10,7 @@ function AddProduct() {
     stockStatus: "In Stock",
   });
 
+  const [image, setImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -19,23 +20,29 @@ function AddProduct() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleImageChange = (e) => {
+    setImage(e.target.files[0]);
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
+    const data = new FormData();
+    data.append("name", formData.name);
+    data.append("price", formData.price);
+    data.append("stock", formData.stock);
+    data.append("stockStatus", formData.stockStatus);
+    if (image) {
+      data.append("image", image);
+    }
+
     try {
       // send product data to backend API
       const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...formData,
-          price: parseFloat(formData.price),
-          stock: parseInt(formData.stock),
-        }),
+        body: data,
       });
 
       if (!response.ok) {
@@ -101,6 +108,16 @@ function AddProduct() {
               <option value="In Stock">In Stock</option>
               <option value="Out of Stock">Out of Stock</option>
             </select>
+          </label>
+
+          <label>
+            Product Image:
+            <input
+              type="file"
+              name="image"
+              accept="image/*"
+              onChange={handleImageChange}
+            />
           </label>
 
           <div className="form-actions">
