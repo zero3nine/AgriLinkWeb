@@ -13,6 +13,7 @@ const orderSchema = new mongoose.Schema({
   buyerName: { type: String, required: true },
   status: { type: String, default: "Pending" }, 
   createdAt: { type: Date, default: Date.now },
+  payment: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" }, createdAt: { type:Date, default:Date.now},
 });
 
 module.exports = mongoose.model("Order", orderSchema);

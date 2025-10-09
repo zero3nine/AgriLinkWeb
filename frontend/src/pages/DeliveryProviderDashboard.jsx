@@ -11,7 +11,7 @@ function DeliveryProviderDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/orders");
+      const res = await axios.get("http://localhost:5000/api/orders?_expand=payment");
       setOrders(res.data);
     } catch (err) {
       console.error(err);
@@ -38,6 +38,18 @@ function DeliveryProviderDashboard() {
   const acceptedOrders = orders.filter((o) => o.status === "Accepted");
   const completedOrders = orders.filter((o) => o.status === "Done");
 
+  const renderPaymentStatus = (order) => {
+    if (!order.payment) return "Unknown"; // fallback
+    if (order.payment.method === "cod"){
+      if(order.status === "Done") return "Paid on Delivery";
+      return "Pay on Arrival";
+    }
+    if (order.payment.status === "success") return "Paid (Card)";
+    if (order.payment.status === "pending") return "Pending Payment";
+    if (order.payment.status === "failed") return "Failed";
+    return "Unknown";
+  };
+
   return (
     <div className="dashboard delivery-dashboard">
       <h1 className="dashboard-title">🚚 Delivery Provider Dashboard</h1>
@@ -54,6 +66,7 @@ function DeliveryProviderDashboard() {
                 <th>Buyer</th>
                 <th>Items</th>
                 <th>Total</th>
+                <th>Payment</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -69,6 +82,7 @@ function DeliveryProviderDashboard() {
                     ))}
                   </td>
                   <td>Rs. {o.totalAmount.toLocaleString()}</td>
+                  <td>{renderPaymentStatus(o)}</td>
                   <td>
                     <button onClick={() => updateStatus(o._id, "Accepted")}>
                       Accept
@@ -93,6 +107,7 @@ function DeliveryProviderDashboard() {
                 <th>Buyer</th>
                 <th>Items</th>
                 <th>Total</th>
+                <th>Payment</th>
                 <th>Action</th>
               </tr>
             </thead>
@@ -108,6 +123,7 @@ function DeliveryProviderDashboard() {
                     ))}
                   </td>
                   <td>Rs. {o.totalAmount.toLocaleString()}</td>
+                  <td>{renderPaymentStatus(o)}</td>
                   <td>
                     <button onClick={() => updateStatus(o._id, "Done")}>
                       Done
@@ -132,6 +148,7 @@ function DeliveryProviderDashboard() {
                 <th>Buyer</th>
                 <th>Items</th>
                 <th>Total</th>
+                <th>Payment</th>
               </tr>
             </thead>
             <tbody>
@@ -146,6 +163,7 @@ function DeliveryProviderDashboard() {
                     ))}
                   </td>
                   <td>Rs. {o.totalAmount.toLocaleString()}</td>
+                  <td>{renderPaymentStatus(o)}</td>
                 </tr>
               ))}
             </tbody>
