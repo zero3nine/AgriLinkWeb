@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "../styles/dashboard.css";
 
@@ -11,6 +12,8 @@ function HomePage() {
 
   const username = localStorage.getItem("username");
   const role = localStorage.getItem("role");
+  const userId = localStorage.getItem("userId");
+  const navigate = useNavigate();
 
   // Fetch products from backend
   useEffect(() => {
@@ -59,19 +62,15 @@ function HomePage() {
   setProducts(res.data);
   };
 
-  const confirmOrder = async () => {
-    try {
-      await axios.post("http://localhost:5000/api/orders", {
-        items: cart,
+const confirmOrder = async () => {
+    navigate("/payment", {
+      state: {
+        cart,
         totalAmount,
-        buyerName: username, // Replace with actual user if auth implemented
-      });
-      alert("Order confirmed!");
-      setCart([]);
-      await fetchProducts(); // refresh product list to update stock
-    } catch (err) {
-      console.error("Error confirming order:", err);
-    }
+        buyerName: username,
+        userId,
+      },
+    });
   };
 
   return (
