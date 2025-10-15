@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import "../styles/dashboard.css";
+import "../styles/dashboardDelivery.css";
 
 function DeliveryProviderDashboard() {
   const [orders, setOrders] = useState([]);
+  const [activeTab, setActiveTab] = useState("ongoing");
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     fetchOrders();
@@ -24,24 +27,17 @@ function DeliveryProviderDashboard() {
         status: newStatus,
       });
       setOrders((prev) =>
-        prev.map((o) =>
-          o._id === orderId ? { ...o, status: newStatus } : o
-        )
+        prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
       );
     } catch (err) {
       console.error(err);
     }
   };
 
-  // Filter orders by status
-  const pendingOrders = orders.filter((o) => o.status === "Pending");
-  const acceptedOrders = orders.filter((o) => o.status === "Accepted");
-  const completedOrders = orders.filter((o) => o.status === "Done");
-
   const renderPaymentStatus = (order) => {
-    if (!order.payment) return "Unknown"; // fallback
-    if (order.payment.method === "cod"){
-      if(order.status === "Done") return "Paid on Delivery";
+    if (!order.payment) return "Unknown";
+    if (order.payment.method === "cod") {
+      if (order.status === "Done") return "Paid on Delivery";
       return "Pay on Arrival";
     }
     if (order.payment.status === "success") return "Paid (Card)";
@@ -50,126 +46,153 @@ function DeliveryProviderDashboard() {
     return "Unknown";
   };
 
+  // Categorize orders
+  const pendingOrders = orders.filter((o) => o.status === "Pending");
+  const acceptedOrders = orders.filter((o) => o.status === "Accepted");
+  const completedOrders = orders.filter((o) => o.status === "Done");
+
+  // Filter completed orders by search
+  const filteredCompleted = completedOrders.filter(
+    (o) =>
+      o.buyerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      o.items.some((i) => i.name.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
   return (
     <div className="dashboard delivery-dashboard">
       <h1 className="dashboard-title">🚚 Delivery Provider Dashboard</h1>
 
-      {/* Pending Orders */}
-      <div className="section">
-        <h2>📦 Pending Orders</h2>
-        {pendingOrders.length === 0 ? (
-          <p>No pending orders</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Buyer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Payment</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {pendingOrders.map((o) => (
-                <tr key={o._id}>
-                  <td>{o.buyerName}</td>
-                  <td>
-                    {o.items.map((i) => (
-                      <div key={i.id}>
-                        {i.name} - {i.qty} kg
-                      </div>
-                    ))}
-                  </td>
-                  <td>Rs. {o.totalAmount.toLocaleString()}</td>
-                  <td>{renderPaymentStatus(o)}</td>
-                  <td>
-                    <button onClick={() => updateStatus(o._id, "Accepted")}>
-                      Accept
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
+      {/* Tabs */}
+      <div className="tabs">
+        <button
+          className={activeTab === "ongoing" ? "active" : ""}
+          onClick={() => setActiveTab("ongoing")}
+        >
+          Ongoing Orders
+        </button>
+        <button
+          className={activeTab === "completed" ? "active" : ""}
+          onClick={() => setActiveTab("completed")}
+        >
+          Completed Orders
+        </button>
       </div>
 
-      {/* Accepted Orders */}
-      <div className="section">
-        <h2>🚚 Awaiting Delivery</h2>
-        {acceptedOrders.length === 0 ? (
-          <p>No orders accepted yet</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Buyer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Payment</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {acceptedOrders.map((o) => (
-                <tr key={o._id}>
-                  <td>{o.buyerName}</td>
-                  <td>
-                    {o.items.map((i) => (
-                      <div key={i.id}>
-                        {i.name} - {i.qty} kg
-                      </div>
-                    ))}
-                  </td>
-                  <td>Rs. {o.totalAmount.toLocaleString()}</td>
-                  <td>{renderPaymentStatus(o)}</td>
-                  <td>
-                    <button onClick={() => updateStatus(o._id, "Done")}>
-                      Done
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      {/* ONGOING TAB */}
+      {activeTab === "ongoing" && (
+        <div className="ongoing-section">
+          <div className="order-column">
+            <h2>📦 Pending Orders</h2>
+            {pendingOrders.length === 0 ? (
+              <p>No pending orders</p>
+            ) : (
+              pendingOrders.map((o) => (
+                <div
+                  key={o._id}
+                  className="order-card"
+                  onClick={() => setSelectedOrder(o)}
+                >
+                  <h3>{o.buyerName}</h3>
+                  <p>Total: Rs. {o.totalAmount.toLocaleString()}</p>
+                  <p>{renderPaymentStatus(o)}</p>
+                  <button onClick={() => updateStatus(o._id, "Accepted")}>
+                    Accept
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
 
-      {/* Completed Orders */}
-      <div className="section">
-        <h2>✅ Completed Orders</h2>
-        {completedOrders.length === 0 ? (
-          <p>No completed orders yet</p>
-        ) : (
-          <table>
-            <thead>
-              <tr>
-                <th>Buyer</th>
-                <th>Items</th>
-                <th>Total</th>
-                <th>Payment</th>
-              </tr>
-            </thead>
-            <tbody>
-              {completedOrders.map((o) => (
-                <tr key={o._id}>
-                  <td>{o.buyerName}</td>
-                  <td>
-                    {o.items.map((i) => (
-                      <div key={i.id}>
-                        {i.name} - {i.qty} kg
-                      </div>
-                    ))}
-                  </td>
-                  <td>Rs. {o.totalAmount.toLocaleString()}</td>
-                  <td>{renderPaymentStatus(o)}</td>
-                </tr>
+          <div className="order-column">
+            <h2>🚚 Awaiting Delivery</h2>
+            {acceptedOrders.length === 0 ? (
+              <p>No orders accepted yet</p>
+            ) : (
+              acceptedOrders.map((o) => (
+                <div
+                  key={o._id}
+                  className="order-card"
+                  onClick={() => setSelectedOrder(o)}
+                >
+                  <h3>{o.buyerName}</h3>
+                  <p>Total: Rs. {o.totalAmount.toLocaleString()}</p>
+                  <p>{renderPaymentStatus(o)}</p>
+                  <button onClick={() => updateStatus(o._id, "Done")}>
+                    Mark as Done
+                  </button>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* COMPLETED TAB */}
+      {activeTab === "completed" && (
+        <div className="completed-section">
+          <div className="search-bar">
+            <input
+              type="text"
+              placeholder="Search by buyer or item..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
+
+          {filteredCompleted.length === 0 ? (
+            <p>No completed orders found</p>
+          ) : (
+            <div className="completed-list">
+              {filteredCompleted.map((o) => (
+                <div
+                  key={o._id}
+                  className="completed-card"
+                  onClick={() => setSelectedOrder(o)}
+                >
+                  <h3>{o.buyerName}</h3>
+                  <p>Total: Rs. {o.totalAmount.toLocaleString()}</p>
+                  <p>{renderPaymentStatus(o)}</p>
+                </div>
               ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Order Modal */}
+      {selectedOrder && (
+        <div className="order-modal">
+          <div className="order-modal-content">
+            <button className="close-btn" onClick={() => setSelectedOrder(null)}>
+              ✖
+            </button>
+            <h2>Order Details</h2>
+            <p>
+              <strong>Buyer:</strong> {selectedOrder.buyerName}
+            </p>
+            <p>
+              <strong>Total:</strong> Rs.{" "}
+              {selectedOrder.totalAmount.toLocaleString()}
+            </p>
+            <p>
+              <strong>Payment:</strong> {renderPaymentStatus(selectedOrder)}
+            </p>
+            <h3>Items:</h3>
+            <div className="item-gallery">
+              {selectedOrder.items.map((i) => (
+                <div key={i.id} className="item-card">
+                  <img
+                    src={i.imageUrl || "/placeholder.jpg"}
+                    alt={i.name}
+                  />
+                  <p>{i.name}</p>
+                  <span>{i.qty} kg</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
