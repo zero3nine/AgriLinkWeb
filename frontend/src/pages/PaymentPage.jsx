@@ -234,7 +234,7 @@ function PaymentPage() {
           {cart.map((item) => (
             <div key={item.id} className="payment-item">
               <img
-                src={item.image || "/placeholder.jpg"}
+                src={item.imageUrl || "/placeholder.jpg"}
                 alt={item.name}
                 className="payment-item-image"
               />

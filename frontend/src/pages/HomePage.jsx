@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import "../styles/dashboard.css";
+import "../styles/dashboardHome.css";
 
 function HomePage() {
   const [products, setProducts] = useState([]);
@@ -9,18 +9,18 @@ function HomePage() {
   const [cart, setCart] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [selectedQty, setSelectedQty] = useState(1);
+  const [showCart, setShowCart] = useState(false);
 
   const username = localStorage.getItem("username");
   const role = localStorage.getItem("role");
   const userId = localStorage.getItem("userId");
   const navigate = useNavigate();
 
-  // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get("http://localhost:5000/api/products");
-        setProducts(res.data.filter((p) => p.stock > 0)); // only show in-stock products
+        setProducts(res.data.filter((p) => p.stock > 0));
       } catch (err) {
         console.error("Error fetching products:", err);
       }
@@ -28,22 +28,17 @@ function HomePage() {
     fetchProducts();
   }, []);
 
-
-  // Open quantity modal
   const handleAddToCartPopup = (product) => {
     setSelectedProduct(product);
     setSelectedQty(1);
   };
 
-  // Confirm adding to cart
   const confirmAddToCart = () => {
     setCart((prev) => {
       const existing = prev.find((p) => p.id === selectedProduct._id);
       if (existing) {
         return prev.map((p) =>
-          p.id === selectedProduct._id
-            ? { ...p, qty: p.qty + selectedQty }
-            : p
+          p.id === selectedProduct._id ? { ...p, qty: p.qty + selectedQty } : p
         );
       }
       return [...prev, { id: selectedProduct._id, ...selectedProduct, qty: selectedQty }];
@@ -51,18 +46,10 @@ function HomePage() {
     setSelectedProduct(null);
   };
 
-  const deleteCartItem = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
-  };
-
+  const deleteCartItem = (id) => setCart((prev) => prev.filter((item) => item.id !== id));
   const totalAmount = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  const fetchProducts = async () => {
-  const res = await axios.get("http://localhost:5000/api/products");
-  setProducts(res.data);
-  };
-
-const confirmOrder = async () => {
+  const confirmOrder = () => {
     navigate("/payment", {
       state: {
         cart,
@@ -75,47 +62,41 @@ const confirmOrder = async () => {
 
   return (
     <div className="dashboard">
-      <h1 className="dashboard-title">🛒 Consumer Dashboard</h1>
+      {/* Header */}
+      <header className="header">
+        <h1 className="dashboard-title">Consumer Dashboard</h1>
+        <div className="cart-container">
+          <button className="cart-btn" onClick={() => setShowCart(true)}>
+            <span className="cart-icon">🛒</span>
+            {cart.length > 0 && <span className="cart-count">{cart.length}</span>}
+          </button>
+        </div>
+      </header>
 
-      {/* Search Bar */}
-      <div style={{ marginBottom: "20px", textAlign: "center" }}>
+      {/* Search */}
+      <div style={{ marginBottom: "30px", textAlign: "center" }}>
         <input
           type="text"
           placeholder="Search products..."
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          style={{
-            padding: "8px 12px",
-            width: "250px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
-          }}
+          className="search-input"
         />
       </div>
 
       {/* Product Grid */}
       <div className="product-grid">
         {products
-          .filter((p) => p.stock > 0 && p.name.toLowerCase().includes(searchTerm.toLowerCase()))
+          .filter((p) => p.name.toLowerCase().includes(searchTerm.toLowerCase()))
           .map((p) => (
             <div key={p._id} className="product-card">
-              <img
-                src={p.imageUrl}
-                alt={p.name}
-                style={{ width: "180px", height: "180px", objectFit: "cover", borderRadius: "8px" }}
-              />
+              <img src={p.imageUrl} alt={p.name} className="product-img" />
               <h3>{p.name}</h3>
-              <p>Price: Rs. {p.price.toLocaleString()}</p>
-              <p>
-                Stock: {p.stock} kg{" "}
-                {p.stock === 0 && (
-                  <span className="status-badge out-of-stock">Out of Stock</span>
-                )}
-              </p>
+              <p>Rs. {p.price.toLocaleString()}</p>
               <button
+                className="add-btn"
                 onClick={() => handleAddToCartPopup(p)}
                 disabled={p.stock === 0}
-                style={{ opacity: p.stock === 0 ? 0.6 : 1 }}
               >
                 Add to Cart
               </button>
@@ -123,8 +104,7 @@ const confirmOrder = async () => {
           ))}
       </div>
 
-
-      {/* Quantity Selection Modal */}
+      {/* Quantity Modal */}
       {selectedProduct && (
         <div className="modal-overlay">
           <div className="modal">
@@ -142,7 +122,7 @@ const confirmOrder = async () => {
               />
             </label>
             <div className="modal-actions">
-              <button onClick={confirmAddToCart}>Add to Cart</button>
+              <button onClick={confirmAddToCart}>Add</button>
               <button onClick={() => setSelectedProduct(null)} className="cancel-btn">
                 Cancel
               </button>
@@ -151,64 +131,56 @@ const confirmOrder = async () => {
         </div>
       )}
 
-      {/* Cart Section */}
-      <div className="section cart-section">
-        <h2>🛍️ My Cart</h2>
-        {cart.length === 0 ? (
-          <p>No items in cart</p>
-        ) : (
-          <>
-            <table>
-              <thead>
-                <tr>
-                  <th>Product</th>
-                  <th>Qty</th>
-                  <th>Price</th>
-                  <th>Total</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {cart.map((item) => (
-                  <tr key={item.id}>
-                    <td>{item.name}</td>
-                    <td>{item.qty} kg</td>
-                    <td>Rs. {item.price.toLocaleString()}</td>
-                    <td>Rs. {(item.price * item.qty).toLocaleString()}</td>
-                    <td>
-                      <button className="delete-btn" onClick={() => deleteCartItem(item.id)}>
-                        Delete
-                      </button>
-                    </td>
-                  </tr>
-                ))}
-                <tr>
-                  <td colSpan="3" style={{ fontWeight: "bold" }}>
-                    Grand Total
-                  </td>
-                  <td style={{ fontWeight: "bold" }}>Rs. {totalAmount.toLocaleString()}</td>
-                  <td></td>
-                </tr>
-              </tbody>
-            </table>
-            {!username || role !== "buyer" ? (
-              <>
-                <p className="auth-warning">
-                  ⚠️ Please sign in as a buyer to confirm orders.
-                </p>
-                <button className="confirm-btn disabled" disabled>
-                  Confirm Order
-                </button>
-              </>
-            ) : (
-              <button className="confirm-btn" onClick={confirmOrder}>
-                Confirm Order
+      {/* Modern Cart Popup */}
+      {showCart && (
+        <div className="cart-overlay" onClick={() => setShowCart(false)}>
+          <div
+            className="cart-popup"
+            onClick={(e) => e.stopPropagation()} // prevent closing when clicking inside
+          >
+            <div className="cart-header">
+              <h2>Your Cart</h2>
+              <button className="close-cart" onClick={() => setShowCart(false)}>
+                ✕
               </button>
-            )}
+            </div>
 
-          </>
-        )}
-      </div>
+            {cart.length === 0 ? (
+              <p className="empty-cart">Your cart is empty.</p>
+            ) : (
+              <>
+                <div className="cart-items">
+                  {cart.map((item) => (
+                    <div key={item.id} className="cart-item">
+                      <img src={item.imageUrl} alt={item.name} />
+                      <div>
+                        <h4>{item.name}</h4>
+                        <p>{item.qty} kg × Rs. {item.price}</p>
+                      </div>
+                      <button
+                        className="delete-btn"
+                        onClick={() => deleteCartItem(item.id)}
+                      >
+                        ✕
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="cart-footer">
+                  <p className="cart-total">Total: Rs. {totalAmount.toLocaleString()}</p>
+                  {!username || role !== "buyer" ? (
+                    <p className="auth-warning">⚠️ Please sign in as a buyer.</p>
+                  ) : (
+                    <button className="confirm-btn" onClick={confirmOrder}>
+                      Confirm Order
+                    </button>
+                  )}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

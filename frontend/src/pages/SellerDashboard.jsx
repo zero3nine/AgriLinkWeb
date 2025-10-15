@@ -10,7 +10,7 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-import "../styles/dashboard.css";
+import "../styles/dashboardSeller.css";
 
 function SellerDashboard() {
   const [products, setProducts] = useState([]);
@@ -152,6 +152,7 @@ const deleteProduct = async (id) => {
                       className={`status-badge ${
                         p.stockStatus === "In Stock" ? "in-stock" : "out-of-stock"
                       }`}
+                      style={{ width: "50px", height: "30px", display: "inline-block" }}
                     >
                       {p.stockStatus}
                     </span>

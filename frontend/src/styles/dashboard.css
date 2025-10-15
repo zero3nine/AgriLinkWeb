@@ -1,3 +1,7 @@
+/* deprecated styles; use dashboardHome.css, dashboardDelivery.css and dashboardSeller.css instead */
+
+
+
 .dashboard.light {
   padding: 30px;
   max-width: 1200px;
@@ -349,3 +353,82 @@ button.delete-btn:hover {
 .delivery-dashboard .status-accepted { background: #4caf50; color: white; }
 .delivery-dashboard .status-done { background: #2196f3; color: white; }
 
+
+
+/* cart */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  position: relative;
+}
+
+.cart-container {
+  position: relative;
+}
+
+.cart-btn {
+  background-color: #4caf50;
+  color: white;
+  padding: 8px 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cart-btn:hover {
+  background-color: #45a049;
+}
+
+.cart-dropdown {
+  position: absolute;
+  top: 45px;
+  right: 0;
+  width: 320px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 12px;
+  z-index: 100;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.cart-dropdown table {
+  width: 100%;
+  font-size: 14px;
+  border-collapse: collapse;
+}
+
+.cart-dropdown th,
+.cart-dropdown td {
+  text-align: left;
+  padding: 4px;
+}
+
+.cart-dropdown .delete-btn {
+  background: none;
+  color: red;
+  border: none;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.cart-dropdown .confirm-btn {
+  width: 100%;
+  background-color: #4caf50;
+  color: white;
+  padding: 8px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-top: 8px;
+}
+
+.cart-dropdown .confirm-btn:hover {
+  background-color: #43a047;
+}
