@@ -51,7 +51,7 @@ router.patch("/:id", async (req, res) => {
 // GET all orders
 router.get("/", async (req, res) => {
   try {
-    const orders = await Order.find(); // fetch all orders
+    const orders = await Order.find().populate("payment"); // fetch all orders
     res.json(orders);
   } catch (err) {
     res.status(500).json({ message: err.message });

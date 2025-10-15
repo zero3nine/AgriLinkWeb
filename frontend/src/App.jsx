@@ -10,6 +10,7 @@ import EditProduct from "./pages/EditProduct";
 import DeliveryProviderDashboard from "./pages/DeliveryProviderDashboard";
 import SellerRoute from "./components/SellerRoute";
 import DeliveryProviderRoute from "./components/DeliveryProviderRoute";
+import PaymentPage from "./pages/PaymentPage";
 
 function App() {
 
@@ -24,7 +25,7 @@ function App() {
         <Route path="/add-product" element={<AddProduct />} />
         <Route path="/edit-product/:id" element={<EditProduct />} />
         <Route path="/delivery-home" element={<DeliveryProviderRoute><DeliveryProviderDashboard /></DeliveryProviderRoute>} />
-
+        <Route path="/payment" element={<PaymentPage />} />
         <Route path="*" element={<HomePage />} />
       </Routes>
     </>
