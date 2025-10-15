@@ -1,0 +1,196 @@
+.payment-page-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px;
+  gap: 40px;
+  font-family: "Poppins", sans-serif;
+  background-color: #f7f9fb;
+  min-height: 90vh;
+}
+
+/* LEFT — ORDER SUMMARY */
+.payment-summary {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.payment-summary h2 {
+  margin-bottom: 15px;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.payment-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 10px;
+}
+
+.payment-item-image {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 12px;
+  margin-right: 15px;
+  background-color: #f3f4f6;
+}
+
+.payment-item-details {
+  flex: 1;
+}
+
+.payment-item-details .item-name {
+  font-weight: 600;
+  margin-bottom: 5px;
+}
+
+.payment-summary h3 {
+  text-align: right;
+  margin-top: 20px;
+  font-size: 1.2rem;
+  color: #222;
+}
+
+/* RIGHT — PAYMENT METHODS */
+.payment-methods {
+  flex: 1;
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 25px 30px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.payment-methods h2 {
+  margin-bottom: 20px;
+  font-size: 1.4rem;
+  color: #333;
+}
+
+.payment-option {
+  margin-bottom: 15px;
+  font-size: 1rem;
+  color: #444;
+}
+
+/* ====== STRIPE CARD ELEMENT ====== */
+.card-element-container {
+  margin-top: 10px;
+  padding: 12px 14px;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  background: #fff;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card-element-container:hover,
+.card-element-container:focus-within {
+  border-color: #2d7ff9;
+  box-shadow: 0 0 8px rgba(45, 127, 249, 0.2);
+}
+
+/* ====== STRIPE MULTI-FIELD INPUTS ====== */
+.card-inputs {
+  display: flex;
+  flex-direction: column;
+  gap: 20px; /* spacing between fields */
+  margin-top: 20px;
+  margin-bottom: 25px;
+}
+
+.card-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.card-field label {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+}
+
+.stripe-input {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 14px;
+  background: #fff;
+  transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.stripe-input:hover,
+.stripe-input:focus-within {
+  border-color: #2d7ff9;
+  box-shadow: 0 0 8px rgba(45, 127, 249, 0.15);
+}
+
+.card-row {
+  display: flex;
+  gap: 20px;
+}
+
+.card-row .card-field {
+  flex: 1;
+}
+
+.StripeElement {
+  font-size: 16px;
+  color: #333;
+  font-family: "Poppins", sans-serif;
+  letter-spacing: 0.5px;
+}
+
+.StripeElement--invalid {
+  color: #e74c3c;
+}
+
+/* BUTTON */
+.confirm-btn {
+  background: #2d7ff9;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 1rem;
+  margin-top: 20px;
+  transition: background 0.3s;
+  width: 100%;
+}
+
+.confirm-btn:hover {
+  background: #1e63d1;
+}
+
+.payment-message {
+  margin-top: 15px;
+  font-weight: bold;
+  color: #333;
+  text-align: center;
+}
+
+/* RESPONSIVE DESIGN */
+@media (max-width: 900px) {
+  .payment-page-container {
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .payment-summary,
+  .payment-methods {
+    width: 100%;
+  }
+}
+
+.stripe-card-element {
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 12px;
+  margin: 10px 0;
+  background: #fff;
+}
