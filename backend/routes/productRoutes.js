@@ -9,13 +9,14 @@ const upload = multer({ storage });
 // add new product
 router.post("/", upload.single("image"), async (req, res) => {
   try {
-    const { name, price, stock, stockStatus } = req.body;
+    const { name, price, stock, stockStatus, sellerId } = req.body;
 
     const product = new Product({
       name,
       price,
       stock,
       stockStatus,
+      sellerId, 
       imageUrl: req.file ? req.file.path : null, // store image URL from Cloudinary
     });
 
@@ -38,6 +39,18 @@ router.get("/", async (req, res) => {
   }
 });
 
+// fetch products by sellerId - placed before product id filtering
+router.get("/seller/:sellerId", async (req, res) => {
+  try {
+    const { sellerId } = req.params;
+    const products = await Product.find({ sellerId }).sort({ createdAt: -1 });
+    res.json(products);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch seller products" });
+  }
+});
+
 // fetch unique product by id
 router.get("/:id", async (req, res) => {
   try {
@@ -48,6 +61,7 @@ router.get("/:id", async (req, res) => {
     res.status(500).json({ message: "Server error", error: err.message });
   }
 });
+
 
 
 //update stock levels

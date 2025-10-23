@@ -9,6 +9,7 @@ const orderSchema = new mongoose.Schema({
       price: { type: Number, required: true },
       qty: { type: Number, required: true }, // decimal quantities allowed
       imageUrl: { type: String }, // URL of the product image
+      sellerId: { type: String, required: true }, // ID of the seller who added the product
     },
   ],
   totalAmount: { type: Number, required: true },
@@ -16,6 +17,7 @@ const orderSchema = new mongoose.Schema({
   status: { type: String, default: "Pending" }, 
   createdAt: { type: Date, default: Date.now },
   payment: { type: mongoose.Schema.Types.ObjectId, ref: "Payment" }, createdAt: { type:Date, default:Date.now},
+  deliveryId: {type: mongoose.Schema.Types.ObjectId, ref: "User" , default:null},
 });
 
 module.exports = mongoose.model("Order", orderSchema);

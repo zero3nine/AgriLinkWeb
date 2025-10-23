@@ -15,56 +15,67 @@ import "../styles/dashboardSeller.css";
 function SellerDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-
   const navigate = useNavigate();
 
-  // 🔹 Fetch products & orders from backend
+  // ✅ Get sellerId from localStorage
+  const sellerId = localStorage.getItem("userId");
+
+  // ✅ Fetch data on load
   useEffect(() => {
+    if (!sellerId) {
+      alert("Seller ID not found. Please log in again.");
+      navigate("/login");
+      return;
+    }
+
     fetchProducts();
     fetchOrders();
-  }, []);
+  }, [sellerId]);
 
-  const fetchOrders = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/orders");
-      setOrders(res.data);
-    } catch (err) {
-      console.error("Error fetching orders:", err);
-    }
-  };
-
-  const flattenedOrders = orders.flatMap((order) =>
-    order.items.map((item) => ({
-      id: order._id,
-      buyer: order.buyerName,
-      product: item.name,
-      qty: item.qty,
-      status: order.status,
-    }))
-  );
-
+  // ✅ Fetch only this seller's products
   const fetchProducts = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/products");
+      const res = await axios.get(`http://localhost:5000/api/products/seller/${sellerId}`);
       setProducts(res.data);
     } catch (err) {
-      console.error("Error fetching products:", err);
+      console.error("Error fetching seller products:", err);
     }
   };
 
-  // 🔹 Update stock
+  // ✅ Fetch only this seller's orders
+  const fetchOrders = async () => {
+    try {
+      const res = await axios.get(`http://localhost:5000/api/orders/seller/${sellerId}`);
+      setOrders(res.data);
+    } catch (err) {
+      console.error("Error fetching seller orders:", err);
+    }
+  };
+
+  // ✅ Flatten only this seller's orders
+  const flattenedOrders = orders.flatMap((order) =>
+    order.items
+      .filter((item) => item.sellerId === sellerId)
+      .map((item) => ({
+        id: order._id,
+        buyer: order.buyerName,
+        product: item.name,
+        qty: item.qty,
+        status: order.status,
+      }))
+  );
+
+  // ✅ Update stock quantity
   const updateStockLevel = async (id, newStock) => {
     try {
-      await axios.put(`http://localhost:5000/api/products/${id}`, {
-        stock: newStock,
-      });
+      await axios.put(`http://localhost:5000/api/products/${id}`, { stock: newStock });
       fetchProducts();
     } catch (err) {
       console.error("Error updating stock:", err);
     }
   };
 
-  // 🔹 Mark In Stock
+  // ✅ Mark product In Stock
   const markInStock = async (id) => {
     try {
       await axios.patch(`http://localhost:5000/api/products/${id}/in-stock`);
@@ -74,7 +85,7 @@ function SellerDashboard() {
     }
   };
 
-  // 🔹 Mark Out of Stock
+  // ✅ Mark product Out of Stock
   const markOutOfStock = async (id) => {
     try {
       await axios.patch(`http://localhost:5000/api/products/${id}/out-of-stock`);
@@ -84,25 +95,24 @@ function SellerDashboard() {
     }
   };
 
-  // 🔹 Delete product
-const deleteProduct = async (id) => {
-  if (!window.confirm("Are you sure you want to delete this product?")) return;
+  // ✅ Delete product
+  const deleteProduct = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this product?")) return;
 
-  try {
-    await axios.delete(`http://localhost:5000/api/products/${id}`);
-    fetchProducts(); // refresh the list
-  } catch (err) {
-    console.error("Error deleting product:", err);
-    alert("Failed to delete product. Please try again.");
-  }
-};
-
+    try {
+      await axios.delete(`http://localhost:5000/api/products/${id}`);
+      fetchProducts();
+    } catch (err) {
+      console.error("Error deleting product:", err);
+      alert("Failed to delete product. Please try again.");
+    }
+  };
 
   return (
     <div className="dashboard light">
-      <h1 className="dashboard-title">🌾 Farmer Dashboard</h1>
+      <h1 className="dashboard-title">🌾 Seller Dashboard</h1>
 
-      {/* Stats */}
+      {/* Stats Section */}
       <div className="stats-grid">
         <div className="stat-card">
           📦 Total Products <span>{products.length}</span>
@@ -121,73 +131,84 @@ const deleteProduct = async (id) => {
         <div className="section">
           <div className="section-header">
             <h2>My Listings</h2>
-            <button
-              className="add-product-btn"
-              onClick={() => navigate("/add-product")}
-            >
+            <button className="add-product-btn" onClick={() => navigate("/add-product")}>
               ➕ Add Product
             </button>
           </div>
 
-          <table>
-            <thead>
-              <tr>
-                <th>Product</th>
-                <th>Image</th>
-                <th>Price (LKR)</th>
-                <th>Stock</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {products.map((p) => (
-                <tr key={p._id}>
-                  <td>{p.name}</td>
-                  <td><img src={p.imageUrl} alt={p.name} style={{ width: "50px", height: "50px", objectFit: "cover", borderRadius: "8px" }}/></td>
-                  <td>{p.price}</td>
-                  <td>{p.stock}</td>
-                  <td>
-                    <span
-                      className={`status-badge ${
-                        p.stockStatus === "In Stock" ? "in-stock" : "out-of-stock"
-                      }`}
-                      style={{ width: "50px", height: "30px", display: "inline-block" }}
-                    >
-                      {p.stockStatus}
-                    </span>
-                  </td>
-                  <td>
-                    <select
-                      onChange={(e) => {
-                        if (e.target.value === "in-stock") markInStock(p._id);
-                        if (e.target.value === "out-of-stock") markOutOfStock(p._id);
-                        if (e.target.value === "update-stock") {
-                          const newStock = prompt("Enter new stock quantity:");
-                          if (newStock) updateStockLevel(p._id, parseInt(newStock));
-                        }
-                        if (e.target.value === "edit") {
-                          navigate(`/edit-product/${p._id}`); // 🔹 To implement later
-                        }
-                        if (e.target.value === "delete") { deleteProduct(p._id); }
-                        e.target.value = ""; // reset select
-                      }}
-                    >
-                      <option value="">Select Action</option>
-                      <option value="in-stock">Mark In Stock</option>
-                      <option value="out-of-stock">Mark Out of Stock</option>
-                      <option value="update-stock">Update Stock Level</option>
-                      <option value="edit">Edit Product</option>
-                      <option value="delete">Delete Product</option>
-                    </select>
-                  </td>
+          {products.length === 0 ? (
+            <p style={{ textAlign: "center", padding: "20px" }}>
+              You haven’t added any products yet.
+            </p>
+          ) : (
+            <table>
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Image</th>
+                  <th>Price (LKR)</th>
+                  <th>Stock</th>
+                  <th>Status</th>
+                  <th>Actions</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {products.map((p) => (
+                  <tr key={p._id}>
+                    <td>{p.name}</td>
+                    <td>
+                      <img
+                        src={p.imageUrl}
+                        alt={p.name}
+                        style={{
+                          width: "50px",
+                          height: "50px",
+                          objectFit: "cover",
+                          borderRadius: "8px",
+                        }}
+                      />
+                    </td>
+                    <td>{p.price}</td>
+                    <td>{p.stock}</td>
+                    <td>
+                      <span
+                        className={`status-badge ${
+                          p.stockStatus === "In Stock" ? "in-stock" : "out-of-stock"
+                        }`}
+                      >
+                        {p.stockStatus}
+                      </span>
+                    </td>
+                    <td>
+                      <select
+                        onChange={(e) => {
+                          if (e.target.value === "in-stock") markInStock(p._id);
+                          if (e.target.value === "out-of-stock") markOutOfStock(p._id);
+                          if (e.target.value === "update-stock") {
+                            const newStock = prompt("Enter new stock quantity:");
+                            if (newStock) updateStockLevel(p._id, parseInt(newStock));
+                          }
+                          if (e.target.value === "edit") navigate(`/edit-product/${p._id}`);
+                          if (e.target.value === "delete") deleteProduct(p._id);
+                          e.target.value = "";
+                        }}
+                      >
+                        <option value="">Select Action</option>
+                        <option value="in-stock">Mark In Stock</option>
+                        <option value="out-of-stock">Mark Out of Stock</option>
+                        <option value="update-stock">Update Stock Level</option>
+                        <option value="edit">Edit Product</option>
+                        <option value="delete">Delete Product</option>
+                      </select>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          )}
         </div>
 
-        {/* Orders Section (kept as sample) */}
+        {/* Orders Section */}
         <div className="section">
           <h2>Orders Received</h2>
           <table>
@@ -202,11 +223,13 @@ const deleteProduct = async (id) => {
             <tbody>
               {flattenedOrders.length === 0 ? (
                 <tr>
-                  <td colSpan="4" style={{ textAlign: "center" }}>No orders found</td>
+                  <td colSpan="4" style={{ textAlign: "center" }}>
+                    No orders found
+                  </td>
                 </tr>
               ) : (
                 flattenedOrders.map((o, index) => (
-                  <tr key={`${o.orderId}-${index}`}>
+                  <tr key={`${o.id}-${index}`}>
                     <td>{o.buyer}</td>
                     <td>{o.product}</td>
                     <td>{o.qty}</td>
@@ -215,7 +238,6 @@ const deleteProduct = async (id) => {
                 ))
               )}
             </tbody>
-
           </table>
         </div>
       </div>

@@ -10,7 +10,8 @@ function Navbar() {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("role");
-    window.location.reload();
+    localStorage.removeItem("userId");
+    navigate("/");
   };
 
   const handleLogoClick = () => {

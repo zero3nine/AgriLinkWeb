@@ -22,8 +22,8 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/seller-home" element={<SellerRoute><SellerDashboard /></SellerRoute>} />
-        <Route path="/add-product" element={<AddProduct />} />
-        <Route path="/edit-product/:id" element={<EditProduct />} />
+        <Route path="/add-product" element={<SellerRoute><AddProduct /></SellerRoute>} />
+        <Route path="/edit-product/:id" element={<SellerRoute><EditProduct /></SellerRoute>} />
         <Route path="/delivery-home" element={<DeliveryProviderRoute><DeliveryProviderDashboard /></DeliveryProviderRoute>} />
         <Route path="/payment" element={<PaymentPage />} />
         <Route path="*" element={<HomePage />} />

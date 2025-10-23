@@ -15,31 +15,43 @@ function AddProduct() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  //Handle form input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  //  Handle image selection
   const handleImageChange = (e) => {
     setImage(e.target.files[0]);
-  }
+  };
 
+  // Submit form data to backend
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    const data = new FormData();
-    data.append("name", formData.name);
-    data.append("price", formData.price);
-    data.append("stock", formData.stock);
-    data.append("stockStatus", formData.stockStatus);
-    if (image) {
-      data.append("image", image);
-    }
-
     try {
-      // send product data to backend API
+      const sellerId = localStorage.getItem("userId"); // logged in seller's id
+      if (!sellerId) {
+        setError("Seller not identified. Please log in again.");
+        setLoading(false);
+        return;
+      }
+
+      // Create form data with seller ID included
+      const data = new FormData();
+      data.append("name", formData.name);
+      data.append("price", formData.price);
+      data.append("stock", formData.stock);
+      data.append("stockStatus", formData.stockStatus);
+      data.append("sellerId", sellerId); // 👈 Add seller ID to backend payload
+
+      if (image) {
+        data.append("image", image);
+      }
+
       const response = await fetch("http://localhost:5000/api/products", {
         method: "POST",
         body: data,
@@ -49,10 +61,10 @@ function AddProduct() {
         throw new Error("Failed to add product");
       }
 
-      // once added, redirect to seller dashboard
+      // ✅ Redirect after successful product addition
       navigate("/seller-home");
     } catch (err) {
-      console.error(err);
+      console.error("Error adding product:", err);
       setError("Something went wrong. Please try again.");
     } finally {
       setLoading(false);
@@ -64,6 +76,7 @@ function AddProduct() {
       <div className="add-product-card">
         <h1>➕ Add New Product</h1>
         {error && <p className="error-message">{error}</p>}
+
         <form onSubmit={handleSubmit} className="add-product-form">
           <label>
             Product Name:

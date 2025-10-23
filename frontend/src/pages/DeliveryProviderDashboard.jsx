@@ -8,12 +8,15 @@ function DeliveryProviderDashboard() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
 
+  const deliveryId = localStorage.getItem("userId"); // logged-in delivery provider
+
   useEffect(() => {
     fetchOrders();
   }, []);
 
   const fetchOrders = async () => {
     try {
+      // Fetch all orders
       const res = await axios.get("http://localhost:5000/api/orders?_expand=payment");
       setOrders(res.data);
     } catch (err) {
@@ -25,10 +28,9 @@ function DeliveryProviderDashboard() {
     try {
       await axios.patch(`http://localhost:5000/api/orders/${orderId}`, {
         status: newStatus,
+        deliveryId: newStatus === "Accepted" ? deliveryId : undefined,
       });
-      setOrders((prev) =>
-        prev.map((o) => (o._id === orderId ? { ...o, status: newStatus } : o))
-      );
+      fetchOrders();
     } catch (err) {
       console.error(err);
     }
@@ -46,10 +48,14 @@ function DeliveryProviderDashboard() {
     return "Unknown";
   };
 
-  // Categorize orders
+  // Orders categorization
   const pendingOrders = orders.filter((o) => o.status === "Pending");
-  const acceptedOrders = orders.filter((o) => o.status === "Accepted");
-  const completedOrders = orders.filter((o) => o.status === "Done");
+  const acceptedOrders = orders.filter(
+    (o) => o.status === "Accepted" && o.deliveryId === deliveryId
+  );
+  const completedOrders = orders.filter(
+    (o) => o.status === "Done" && o.deliveryId === deliveryId
+  );
 
   // Filter completed orders by search
   const filteredCompleted = completedOrders.filter(
@@ -81,6 +87,7 @@ function DeliveryProviderDashboard() {
       {/* ONGOING TAB */}
       {activeTab === "ongoing" && (
         <div className="ongoing-section">
+          {/* Pending Orders */}
           <div className="order-column">
             <h2>📦 Pending Orders</h2>
             {pendingOrders.length === 0 ? (
@@ -95,7 +102,12 @@ function DeliveryProviderDashboard() {
                   <h3>{o.buyerName}</h3>
                   <p>Total: Rs. {o.totalAmount.toLocaleString()}</p>
                   <p>{renderPaymentStatus(o)}</p>
-                  <button onClick={() => updateStatus(o._id, "Accepted")}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateStatus(o._id, "Accepted");
+                    }}
+                  >
                     Accept
                   </button>
                 </div>
@@ -103,6 +115,7 @@ function DeliveryProviderDashboard() {
             )}
           </div>
 
+          {/* Accepted / Awaiting Delivery */}
           <div className="order-column">
             <h2>🚚 Awaiting Delivery</h2>
             {acceptedOrders.length === 0 ? (
@@ -117,7 +130,12 @@ function DeliveryProviderDashboard() {
                   <h3>{o.buyerName}</h3>
                   <p>Total: Rs. {o.totalAmount.toLocaleString()}</p>
                   <p>{renderPaymentStatus(o)}</p>
-                  <button onClick={() => updateStatus(o._id, "Done")}>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      updateStatus(o._id, "Done");
+                    }}
+                  >
                     Mark as Done
                   </button>
                 </div>
@@ -161,8 +179,11 @@ function DeliveryProviderDashboard() {
 
       {/* Order Modal */}
       {selectedOrder && (
-        <div className="order-modal">
-          <div className="order-modal-content">
+        <div className="order-modal" onClick={() => setSelectedOrder(null)}>
+          <div
+            className="order-modal-content"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button className="close-btn" onClick={() => setSelectedOrder(null)}>
               ✖
             </button>
@@ -171,8 +192,7 @@ function DeliveryProviderDashboard() {
               <strong>Buyer:</strong> {selectedOrder.buyerName}
             </p>
             <p>
-              <strong>Total:</strong> Rs.{" "}
-              {selectedOrder.totalAmount.toLocaleString()}
+              <strong>Total:</strong> Rs. {selectedOrder.totalAmount.toLocaleString()}
             </p>
             <p>
               <strong>Payment:</strong> {renderPaymentStatus(selectedOrder)}
@@ -181,10 +201,7 @@ function DeliveryProviderDashboard() {
             <div className="item-gallery">
               {selectedOrder.items.map((i) => (
                 <div key={i.id} className="item-card">
-                  <img
-                    src={i.imageUrl || "/placeholder.jpg"}
-                    alt={i.name}
-                  />
+                  <img src={i.imageUrl || "/placeholder.jpg"} alt={i.name} />
                   <p>{i.name}</p>
                   <span>{i.qty} kg</span>
                 </div>
